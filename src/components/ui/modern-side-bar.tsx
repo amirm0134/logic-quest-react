@@ -13,6 +13,8 @@ import {
   ChevronRight,
   Search,
   HelpCircle,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 
 interface NavigationItem {
@@ -101,7 +103,7 @@ export function Sidebar({
 
       <aside
         className={`
-          fixed left-0 top-0 z-40 flex h-full flex-col border-r border-white/10 bg-slate-950/88 text-slate-100 backdrop-blur-xl transition-all duration-300 ease-in-out
+          fixed left-0 top-0 z-40 flex h-full overflow-hidden flex-col border-r border-white/10 bg-slate-950/88 text-slate-100 backdrop-blur-xl transition-all duration-300 ease-in-out
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
           ${isCollapsed ? "w-28" : "w-80"}
           md:translate-x-0
@@ -159,7 +161,7 @@ export function Sidebar({
           </div>
         )}
 
-        <nav className="flex-1 overflow-y-auto px-3 py-2">
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-2">
           <ul className="space-y-0.5">
             {visibleItems.map((item) => {
               const Icon = item.icon;
@@ -170,13 +172,13 @@ export function Sidebar({
                   <button
                     onClick={() => handleItemClick(item.id)}
                     className={`
-                      group relative flex w-full items-center rounded-md px-3 py-2.5 text-left transition-all duration-200
+                      group relative flex w-full items-center rounded-md py-2.5 text-left transition-all duration-200
                       ${
                         isActive
                           ? "bg-white/[0.12] text-white shadow-inner shadow-white/5"
                           : "text-slate-400 hover:bg-white/[0.08] hover:text-white"
                       }
-                      ${isCollapsed ? "justify-center px-2" : "space-x-2.5"}
+                      ${isCollapsed ? "justify-center px-2" : "space-x-3 pl-8 pr-3"}
                     `}
                     title={isCollapsed ? item.name : undefined}
                   >
@@ -205,11 +207,8 @@ export function Sidebar({
                       </div>
                     )}
 
-                    {isCollapsed && (
-                      <div className="invisible absolute left-full z-50 ml-2 whitespace-nowrap rounded bg-slate-800 px-2 py-1 text-xs text-white opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
-                        {item.name}
-                        <div className="absolute left-0 top-1/2 h-1.5 w-1.5 -translate-x-1 -translate-y-1/2 rotate-45 bg-slate-800" />
-                      </div>
+                    {!isCollapsed && isActive && (
+                      <span className="absolute left-3 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-white/70" />
                     )}
                   </button>
                 </li>
@@ -219,19 +218,19 @@ export function Sidebar({
         </nav>
 
         <div className="border-t border-white/10">
-          {!isCollapsed && (
-            <div className="space-y-2 border-b border-white/10 bg-white/[0.03] p-3">
-              <button
-                onClick={onSoundToggle}
-                className="flex w-full items-center justify-between rounded-md border border-white/10 bg-white/[0.04] px-3 py-2 text-left text-sm font-semibold text-slate-100 hover:bg-white/10"
-              >
-                <span>Audio</span>
-                <span className={soundOn ? "text-white" : "text-slate-500"}>
-                  {soundOn ? "on" : "off"}
-                </span>
-              </button>
-            </div>
-          )}
+          <div className="space-y-2 border-b border-white/10 bg-white/[0.03] p-3">
+            <button
+              onClick={onSoundToggle}
+              className="flex w-full items-center justify-center rounded-md border border-white/10 bg-white/[0.04] p-2.5 text-left text-sm font-semibold text-slate-100 transition hover:bg-white/10"
+              title={`Audio ${soundOn ? "on" : "off"}`}
+            >
+              {soundOn ? (
+                <Volume2 className="h-[18px] w-[18px] text-white" />
+              ) : (
+                <VolumeX className="h-[18px] w-[18px] text-slate-500" />
+              )}
+            </button>
+          </div>
 
           <div className="p-3">
             <button
