@@ -125,13 +125,13 @@ export const PhotoGallery = ({
   return (
     <div className="relative min-h-screen overflow-hidden px-4 pb-10 pt-8">
       <div className="absolute inset-x-0 top-[290px] -z-10 hidden h-[260px] w-full bg-transparent bg-[linear-gradient(to_right,#57534e_1px,transparent_1px),linear-gradient(to_bottom,#57534e_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20 [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)] md:block" />
-      <p className="my-2 text-center text-xs font-light uppercase tracking-[0.32em] text-slate-600">
+      <p className="my-2 text-center text-xs font-light uppercase tracking-[0.32em] text-slate-400">
         Forma Canonica e Reti Logiche
       </p>
-      <h3 className="z-20 mx-auto max-w-4xl justify-center bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text py-3 text-center text-5xl font-medium leading-none text-transparent md:text-7xl">
-        Welcome to My <span className="text-rose-500">Logic Stories</span>
+      <h3 className="z-20 mx-auto max-w-4xl justify-center bg-gradient-to-r from-slate-50 via-slate-200 to-slate-400 bg-clip-text py-3 text-center text-5xl font-medium leading-none text-transparent md:text-7xl">
+        Welcome to My <span className="text-slate-100">Logic Stories</span>
       </h3>
-      <div className="relative mb-4 h-[310px] w-full items-center justify-center lg:flex">
+      <div className="relative mb-3 h-[250px] w-full items-center justify-center lg:flex">
         <motion.div
           className="relative mx-auto flex w-full max-w-7xl justify-center"
           initial={{ opacity: 0 }}
@@ -144,7 +144,7 @@ export const PhotoGallery = ({
             initial="hidden"
             animate={isLoaded ? "visible" : "hidden"}
           >
-            <div className="relative h-[220px] w-[220px] max-md:scale-75">
+            <div className="relative h-[220px] w-[220px] scale-90 max-md:scale-75">
               {[...photos].reverse().map((photo) => (
                 <motion.div
                   key={photo.id}
@@ -170,9 +170,9 @@ export const PhotoGallery = ({
           </motion.div>
         </motion.div>
       </div>
-      <div className="flex w-full justify-center">
-        <Button asChild>
-          <Link href="/sito">View All Stories</Link>
+      <div className="mt-5 flex w-full justify-center">
+        <Button asChild className="border border-white/10 bg-white/10 text-white hover:bg-white/15">
+          <Link href="/sito">Enter</Link>
         </Button>
       </div>
     </div>
