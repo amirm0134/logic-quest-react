@@ -1,0 +1,8 @@
+node_modules/
+.next/
+out/
+.env*.local
+.vercel/
+*.log
+_react_home.png
+_react_sito.png
