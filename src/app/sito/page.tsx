@@ -1946,7 +1946,7 @@ function LevelMission({
         </div>
         <div className="grid content-start gap-3">
           <div className="rounded-lg border border-cyan-200/15 bg-zinc-950/70 p-4">
-            <div className="text-3xl font-black text-white">Sigma m</div>
+            <div className="text-3xl font-black text-white">Mintermini</div>
             <div className="mt-2 font-mono text-sm text-zinc-400">costruisci la lista senza righe false</div>
           </div>
           {steps.map((step, index) => (
