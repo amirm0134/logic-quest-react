@@ -16,8 +16,25 @@ const config: Config = {
         fourth: "moveHorizontal 40s ease infinite",
         fifth: "moveInCircle 20s ease infinite",
         spotlight: "spotlight 2s ease 0.35s 1 forwards",
+        sidebarUnlock: "sidebarUnlock 1.6s cubic-bezier(.2,.8,.2,1) 2",
+        sidebarSweep: "sidebarSweep 1.6s cubic-bezier(.2,.8,.2,1) 2",
+        introPanel: "introPanel 0.45s ease-out",
       },
       keyframes: {
+        introPanel: {
+          "0%": { opacity: "0", transform: "translateY(24px) scale(0.98)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
+        sidebarUnlock: {
+          "0%": { opacity: "0", transform: "scale(0.96)", filter: "brightness(0.8)" },
+          "35%": { opacity: "1", transform: "scale(1.03)", filter: "brightness(1.45)" },
+          "100%": { opacity: "1", transform: "scale(1)", filter: "brightness(1)" },
+        },
+        sidebarSweep: {
+          "0%": { transform: "translateX(-120%)", opacity: "0" },
+          "30%": { opacity: "1" },
+          "100%": { transform: "translateX(620%)", opacity: "0" },
+        },
         spotlight: {
           "0%": {
             opacity: "0",

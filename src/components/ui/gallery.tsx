@@ -126,10 +126,10 @@ export const PhotoGallery = ({
     <div className="relative min-h-screen overflow-hidden px-4 pb-10 pt-8">
       <div className="absolute inset-x-0 top-[290px] -z-10 hidden h-[260px] w-full bg-transparent bg-[linear-gradient(to_right,#57534e_1px,transparent_1px),linear-gradient(to_bottom,#57534e_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20 [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)] md:block" />
       <p className="my-2 text-center text-xs font-light uppercase tracking-[0.32em] text-slate-400">
-        Forma Canonica e Reti Logiche
+        Laboratorio di reti logiche
       </p>
       <h3 className="z-20 mx-auto max-w-4xl justify-center bg-gradient-to-r from-slate-50 via-slate-200 to-slate-400 bg-clip-text py-3 text-center text-5xl font-medium leading-none text-transparent md:text-7xl">
-        Welcome to My <span className="text-slate-100">Logic Stories</span>
+        Telecomunicazioni
       </h3>
       <div className="relative mb-3 h-[250px] w-full items-center justify-center lg:flex">
         <motion.div

@@ -22,11 +22,14 @@ interface NavigationItem {
   name: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: string;
+  level?: number;
 }
 
 interface SidebarProps {
   activeItem: string;
   soundOn: boolean;
+  unlockedLevels: number[];
+  room2JustUnlocked: boolean;
   onNavigate: (itemId: string) => void;
   onSoundToggle: () => void;
   onBackHome: () => void;
@@ -34,7 +37,14 @@ interface SidebarProps {
 }
 
 const navigationItems: NavigationItem[] = [
-  { id: "room", name: "Stanza 01", icon: CircuitBoard },
+  { id: "room", name: "Stanza 01", icon: CircuitBoard, level: 1 },
+  { id: "room2", name: "Stanza 02", icon: CircuitBoard, level: 2 },
+  { id: "room3", name: "Stanza 03", icon: CircuitBoard, level: 3 },
+  { id: "room4", name: "Stanza 04", icon: CircuitBoard, level: 4 },
+  { id: "room5", name: "Stanza 05", icon: CircuitBoard, level: 5 },
+  { id: "room6", name: "Stanza 06", icon: CircuitBoard, level: 6 },
+  { id: "room7", name: "Stanza 07", icon: CircuitBoard, level: 7 },
+  { id: "room8", name: "Stanza 08", icon: CircuitBoard, level: 8 },
   { id: "terminal", name: "Terminale", icon: TerminalSquare },
   { id: "archive", name: "Archivio", icon: Archive },
   { id: "roadmap", name: "Percorso", icon: Route },
@@ -43,6 +53,8 @@ const navigationItems: NavigationItem[] = [
 export function Sidebar({
   activeItem,
   soundOn,
+  unlockedLevels,
+  room2JustUnlocked,
   onNavigate,
   onSoundToggle,
   onBackHome,
@@ -76,9 +88,9 @@ export function Sidebar({
     }
   };
 
-  const visibleItems = navigationItems.filter((item) =>
-    item.name.toLowerCase().includes(query.toLowerCase()),
-  );
+  const visibleItems = navigationItems.filter((item) => {
+    return item.name.toLowerCase().includes(query.toLowerCase());
+  });
 
   return (
     <>
@@ -113,23 +125,23 @@ export function Sidebar({
         <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] p-5">
           {!isCollapsed && (
             <div className="flex min-w-0 items-center space-x-2.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/10 shadow-sm">
-                <span className="text-base font-bold text-white">Y</span>
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-cyan-200/25 bg-cyan-200/10 shadow-sm shadow-cyan-200/10">
+                <span className="text-base font-bold text-cyan-50">TX</span>
               </div>
               <div className="flex min-w-0 flex-col">
                 <span className="truncate text-base font-semibold text-white">
-                  Logic Quest
+                  Telecomunicazioni
                 </span>
                 <span className="truncate text-xs text-slate-400">
-                  Forma canonica
+                  Reti logiche
                 </span>
               </div>
             </div>
           )}
 
           {isCollapsed && (
-            <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/10 shadow-sm">
-              <span className="text-base font-bold text-white">Y</span>
+            <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-lg border border-cyan-200/25 bg-cyan-200/10 shadow-sm shadow-cyan-200/10">
+              <span className="text-base font-bold text-cyan-50">TX</span>
             </div>
           )}
 
@@ -166,9 +178,17 @@ export function Sidebar({
             {visibleItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeItem === item.id;
+              const isLocked = item.level ? !unlockedLevels.includes(item.level) : false;
 
               return (
-                <li key={item.id}>
+                <li
+                  key={item.id}
+                  className={
+                    item.id === "room2" && room2JustUnlocked
+                      ? "animate-sidebarUnlock"
+                      : undefined
+                  }
+                >
                   <button
                     onClick={() => handleItemClick(item.id)}
                     className={`
@@ -177,6 +197,12 @@ export function Sidebar({
                         isActive
                           ? "bg-white/[0.12] text-white shadow-inner shadow-white/5"
                           : "text-slate-400 hover:bg-white/[0.08] hover:text-white"
+                      }
+                      ${isLocked ? "opacity-45" : ""}
+                      ${
+                        item.id === "room2" && room2JustUnlocked
+                          ? "overflow-hidden ring-1 ring-white/45 shadow-lg shadow-white/10"
+                          : ""
                       }
                       ${isCollapsed ? "justify-center px-2" : "space-x-3 pl-8 pr-3"}
                     `}
@@ -204,11 +230,19 @@ export function Sidebar({
                         >
                           {item.name}
                         </span>
+                        {isLocked && (
+                          <span className="rounded-full border border-white/10 bg-black/30 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                            lock
+                          </span>
+                        )}
                       </div>
                     )}
 
                     {!isCollapsed && isActive && (
                       <span className="absolute left-3 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-white/70" />
+                    )}
+                    {item.id === "room2" && room2JustUnlocked && (
+                      <span className="pointer-events-none absolute inset-y-0 left-0 w-12 animate-sidebarSweep bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                     )}
                   </button>
                 </li>
