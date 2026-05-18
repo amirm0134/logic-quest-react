@@ -273,6 +273,51 @@ const LEVEL_STEP_OPTIONS: Record<
   ],
 };
 
+const LEVEL_ROBOT_LINES: Record<number, string> = {
+  3: "Analizzo la matrice: cerca gruppi puliti, non celle isolate a caso.",
+  4: "Filtro i segnali: solo le righe con uscita attiva diventano mintermini.",
+  5: "Ordino i moduli: prima negazioni, poi prodotti, infine somma logica.",
+  6: "Controllo il banco: il LED deve seguire Y, non l'istinto.",
+  7: "Sincronizzo feedback: ogni azione deve produrre una risposta chiara.",
+  8: "Trasmettitore pronto: combina le chiavi e chiudi il protocollo.",
+};
+
+const ARCHIVE_DOSSIERS: Record<
+  number,
+  { title: string; tag: string; hint: string; visual: "kmap" | "truth" | "blueprint" | "bench" | "feedback" | "key" | "gray" | "formula" | "order" | "resistor" | "unlock" | "route" }[]
+> = {
+  3: [
+    { title: "Celle attive", tag: "scanner", hint: "Parti solo dalle celle illuminate: quelle spente sono rumore di fondo.", visual: "kmap" },
+    { title: "Coordinate Gray", tag: "assi", hint: "Le coordinate della mappa non crescono in binario puro: controlla l'ordine Gray.", visual: "gray" },
+    { title: "Filtro stabilita'", tag: "filtro", hint: "Dentro un gruppo, conserva solo le lettere che non cambiano mai.", visual: "formula" },
+  ],
+  4: [
+    { title: "Registro Y", tag: "tabella", hint: "Le righe con Y=1 diventano mintermini; le altre vanno ignorate.", visual: "truth" },
+    { title: "Convertitore ABCD", tag: "binario", hint: "Leggi ABCD come numero binario per ottenere l'indice m.", visual: "blueprint" },
+    { title: "Lista mintermini", tag: "ordine", hint: "La console accetta la lista solo se gli indici sono ordinati.", visual: "order" },
+  ],
+  5: [
+    { title: "Blueprint ingressi", tag: "schema", hint: "Se una variabile compare negata, prepara prima il suo ramo invertito.", visual: "blueprint" },
+    { title: "Banchi AND", tag: "moduli", hint: "Ogni prodotto logico va su una AND separata.", visual: "kmap" },
+    { title: "Sommatore OR", tag: "uscita", hint: "Le uscite dei prodotti convergono nella OR finale.", visual: "feedback" },
+  ],
+  6: [
+    { title: "Linea LED", tag: "fisica", hint: "Il LED visualizza Y: non deve dipendere da un ingresso isolato.", visual: "bench" },
+    { title: "Resistenza", tag: "protezione", hint: "La resistenza protegge il componente, non cambia la funzione logica.", visual: "resistor" },
+    { title: "Collaudo 0/1", tag: "test", hint: "Prova almeno un caso acceso e uno spento prima di fidarti del circuito.", visual: "truth" },
+  ],
+  7: [
+    { title: "Evento input", tag: "ux", hint: "Un'azione deve essere chiara prima ancora del feedback.", visual: "feedback" },
+    { title: "Risposta breve", tag: "audio", hint: "Suono e glow devono confermare, non distrarre.", visual: "bench" },
+    { title: "Sblocco visibile", tag: "stato", hint: "Il giocatore deve capire subito cosa si e' aperto.", visual: "unlock" },
+  ],
+  8: [
+    { title: "Chiave 103", tag: "codice", hint: "La chiave finale riusa il codice ottenuto nella prima porta.", visual: "key" },
+    { title: "Percorso completo", tag: "percorso", hint: "Il trasmettitore si arma solo se tutti i moduli sono validati.", visual: "route" },
+    { title: "Uscita finale", tag: "varco", hint: "Il sigillo finale combina codice, percorso e uscita logica.", visual: "blueprint" },
+  ],
+};
+
 function bits(index: number) {
   return [(index >> 3) & 1, (index >> 2) & 1, (index >> 1) & 1, index & 1];
 }
@@ -1764,6 +1809,8 @@ function BonusLevelPanel({
             ))}
           </div>
 
+          <LevelRobotDock level={level} />
+
           <div className="mt-auto rounded-lg border border-white/10 bg-zinc-950/70 p-4">
             <div className="font-mono text-xs uppercase tracking-[0.22em] text-zinc-500">
               progresso stanza
@@ -1848,6 +1895,31 @@ function ChoiceChip({
     >
       {label}
     </button>
+  );
+}
+
+function LevelRobotDock({ level }: { level: number }) {
+  return (
+    <div className="relative mb-4 min-h-[132px] overflow-hidden rounded-lg border border-white/10 bg-black/45 shadow-lg shadow-black/25">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_42%,rgba(255,255,255,0.15),transparent_34%)]" />
+      <div className="absolute right-0 top-0 h-full w-1/2 opacity-90">
+        <SplineScene
+          scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+          className="h-full w-full"
+          trackDocumentPointer
+        />
+      </div>
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-2/3 bg-gradient-to-r from-black via-black/45 to-transparent" />
+      <div className="relative z-10 flex h-full max-w-[68%] flex-col justify-center p-4">
+        <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-500">
+          assistente tx-{String(level).padStart(2, "0")}
+        </div>
+        <div className="mt-2 flex items-start gap-2 text-sm font-semibold leading-5 text-zinc-200">
+          <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-cyan-100" />
+          <span>{LEVEL_ROBOT_LINES[level]}</span>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -2483,6 +2555,10 @@ function SupportPanel({ level, type }: { level: number; type: "terminal" | "arch
   const [selectedNote, setSelectedNote] = useState(0);
   const activeNote = notes[selectedNote] || notes[0];
 
+  if (type === "archive" && level >= 3) {
+    return <ArchiveDossierPanel level={level} />;
+  }
+
   return (
     <Card className="relative h-full overflow-hidden border-white/10 bg-zinc-950/92 p-5 text-white shadow-2xl shadow-black/30 backdrop-blur-xl">
       <Spotlight className="-top-72 left-20 opacity-20" fill="white" />
@@ -2555,6 +2631,317 @@ function SupportPanel({ level, type }: { level: number; type: "terminal" | "arch
   );
 }
 
+function ArchiveDossierPanel({ level }: { level: number }) {
+  const levelInfo = LEVELS.find((item) => item.level === level);
+  const dossiers = ARCHIVE_DOSSIERS[level] || [];
+  const featured = dossiers[0];
+  const secondary = dossiers.slice(1);
+  const [openDossier, setOpenDossier] = useState<(typeof dossiers)[number] | null>(null);
+
+  return (
+    <>
+      <Card className="relative h-full overflow-hidden border-white/10 bg-zinc-950/92 p-5 text-white shadow-2xl shadow-black/30 backdrop-blur-xl">
+        <Spotlight className="-top-72 left-20 opacity-20" fill="white" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:38px_38px] opacity-45" />
+        <div className="absolute right-10 top-10 h-48 w-48 rounded-full bg-cyan-200/[0.07] blur-3xl" />
+        <div className="relative z-10 flex h-full flex-col">
+          <p className="font-mono text-xs uppercase tracking-[0.25em] text-zinc-500">
+            stanza {String(level).padStart(2, "0")} / archivio
+          </p>
+          <div className="mt-2 flex items-end justify-between gap-4">
+            <div>
+              <h2 className="text-3xl font-black">Banca prove</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
+                {levelInfo?.topic}. Apri i fascicoli: ogni prova contiene un indizio operativo, non la soluzione.
+              </p>
+            </div>
+            <div className="hidden rounded-lg border border-white/10 bg-black/35 px-4 py-3 font-mono text-xs uppercase tracking-[0.2em] text-zinc-400 md:block">
+              {dossiers.length}/3 fascicoli
+            </div>
+          </div>
+
+          <div className="mt-5 grid min-h-0 flex-1 gap-4 lg:grid-cols-[1.25fr_0.75fr]">
+            {featured && (
+              <button
+                key={featured.title}
+                type="button"
+                onClick={() => setOpenDossier(featured)}
+                className="group relative min-h-0 overflow-hidden rounded-lg border border-white/10 bg-black/35 p-5 text-left shadow-xl shadow-black/20 transition duration-300 hover:-translate-y-1 hover:border-white/30 hover:bg-white/[0.06] hover:shadow-white/10"
+              >
+                <div className="absolute inset-x-0 top-0 h-px -translate-x-full bg-gradient-to-r from-transparent via-white/70 to-transparent transition duration-700 group-hover:translate-x-full" />
+                <div className="absolute -right-16 -top-16 h-52 w-52 rounded-full bg-white/10 blur-3xl transition group-hover:bg-white/15" />
+                <div className="relative flex h-full flex-col">
+                  <div className="mb-3 flex items-center justify-between gap-2">
+                    <span className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-400">
+                      prova principale / {featured.tag}
+                    </span>
+                    <span className="font-mono text-xs text-zinc-600">01</span>
+                  </div>
+                  <div className="min-h-0 flex-1 overflow-hidden rounded-md border border-white/10 bg-zinc-950/75 p-3">
+                    <ArchiveMiniVisual visual={featured.visual} large />
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-3xl font-black text-white">{featured.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-zinc-400">{featured.hint}</p>
+                  </div>
+                </div>
+              </button>
+            )}
+
+            <div className="grid min-h-0 gap-4">
+              {secondary.map((dossier, index) => (
+                <button
+                  key={dossier.title}
+                  type="button"
+                  onClick={() => setOpenDossier(dossier)}
+                  className="group relative min-h-0 overflow-hidden rounded-lg border border-white/10 bg-black/35 p-4 text-left shadow-xl shadow-black/20 transition duration-300 hover:-translate-y-1 hover:border-white/30 hover:bg-white/[0.06]"
+                >
+                  <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-white/45 to-transparent opacity-0 transition group-hover:opacity-100" />
+                  <div className="relative grid h-full grid-cols-[110px_1fr] gap-3">
+                    <div className="overflow-hidden rounded-md border border-white/10 bg-zinc-950/75 p-2">
+                      <ArchiveMiniVisual visual={dossier.visual} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+                        0{index + 2} / {dossier.tag}
+                      </div>
+                      <h3 className="mt-2 text-lg font-black text-white">{dossier.title}</h3>
+                      <p className="mt-1 line-clamp-3 text-xs leading-5 text-zinc-400">{dossier.hint}</p>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {openDossier && (
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm"
+          onClick={() => setOpenDossier(null)}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 22, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            className="relative grid w-[min(980px,calc(100vw-3rem))] max-h-[82vh] overflow-hidden rounded-lg border border-white/15 bg-zinc-950 shadow-2xl shadow-black/70 md:grid-cols-[1.05fr_0.95fr]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="min-h-[420px] bg-black/35 p-5">
+              <ArchiveMiniVisual visual={openDossier.visual} large />
+            </div>
+            <div className="flex flex-col p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="font-mono text-xs uppercase tracking-[0.25em] text-zinc-500">
+                    {openDossier.tag}
+                  </div>
+                  <h3 className="mt-2 text-3xl font-black text-white">{openDossier.title}</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setOpenDossier(null)}
+                  className="rounded-md border border-white/10 bg-white/[0.04] p-2 text-zinc-300 transition hover:bg-white/10 hover:text-white"
+                  aria-label="Chiudi prova"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <p className="mt-5 text-base leading-7 text-zinc-300">{openDossier.hint}</p>
+              <div className="mt-auto grid gap-2 pt-6">
+                {["osserva la prova", "applica nel livello", "verifica prima del sigillo"].map((step, index) => (
+                  <div key={step} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">
+                    <div className="grid h-7 w-7 place-items-center rounded-full bg-white/10 font-mono text-xs font-black text-white">
+                      {index + 1}
+                    </div>
+                    <span className="text-sm font-semibold text-zinc-200">{step}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function ArchiveMiniVisual({
+  visual,
+  large = false,
+}: {
+  visual: "kmap" | "truth" | "blueprint" | "bench" | "feedback" | "key" | "gray" | "formula" | "order" | "resistor" | "unlock" | "route";
+  large?: boolean;
+}) {
+  if (visual === "kmap") {
+    const cells = [0, 1, 3, 2, 4, 5, 7, 6, 12, 13, 15, 14, 8, 9, 11, 10];
+    return (
+      <div className={cn("grid h-full grid-cols-4 gap-1.5", large && "gap-3 p-4")}>
+        {cells.map((cell) => (
+          <div
+            key={cell}
+            className={cn(
+              "grid place-items-center rounded border font-mono text-xs font-black",
+              truth(cell) ? "border-emerald-200/35 bg-emerald-200/12 text-emerald-50" : "border-white/10 bg-white/[0.03] text-zinc-600",
+              large && "text-lg",
+            )}
+          >
+            m{cell}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (visual === "truth") {
+    return (
+      <div className={cn("grid h-full content-start gap-1 font-mono text-xs", large && "p-5 text-sm")}>
+        {Array.from({ length: large ? 16 : 8 }, (_, index) => (
+          <div key={index} className={cn("grid grid-cols-3 rounded border border-white/10 px-2 py-1", truth(index) ? "bg-cyan-200/[0.08] text-cyan-50" : "bg-black/30 text-zinc-600")}>
+            <span>m{index}</span>
+            <span>{bits(index).join("")}</span>
+            <span>Y={truth(index)}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (visual === "blueprint") {
+    return (
+      <div className={cn("relative h-full min-h-[170px]", large && "min-h-[380px]")}>
+        {["IN", "NOT", "AND", "OR", "Y"].map((item, index) => (
+          <div
+            key={item}
+            className="absolute rounded-md border border-sky-200/20 bg-sky-200/[0.07] px-3 py-2 text-center font-mono text-xs font-black text-sky-50"
+            style={{ left: `${index * 20}%`, top: `${32 + (index % 2) * 22}%` }}
+          >
+            {item}
+          </div>
+        ))}
+        <div className="absolute inset-x-8 top-1/2 h-px bg-gradient-to-r from-sky-200/20 via-white/50 to-emerald-200/20" />
+      </div>
+    );
+  }
+
+  if (visual === "bench") {
+    return (
+      <div className={cn("relative h-full min-h-[170px]", large && "min-h-[380px]")}>
+        <div className="absolute left-6 top-8 h-20 w-32 rounded-lg border border-white/15 bg-white/[0.06]" />
+        <div className="absolute right-10 top-10 h-16 w-16 animate-pulse rounded-full border border-red-200/35 bg-red-400/15 shadow-[0_0_40px_rgba(248,113,113,0.25)]" />
+        <div className="absolute bottom-12 left-10 right-14 h-1 rounded-full bg-gradient-to-r from-amber-200/30 via-white/25 to-red-200/30" />
+        <div className="absolute bottom-16 left-24 h-12 w-8 rounded bg-amber-300/35" />
+      </div>
+    );
+  }
+
+  if (visual === "feedback") {
+    return (
+      <div className={cn("grid h-full grid-cols-3 gap-2", large && "p-5")}>
+        {["input", "suono", "sblocco"].map((item, index) => (
+          <div key={item} className="relative overflow-hidden rounded-lg border border-fuchsia-200/15 bg-fuchsia-200/[0.06] p-3">
+            <div className="absolute -right-6 -top-6 h-16 w-16 rounded-full bg-fuchsia-300/20 blur-2xl" />
+            <div className="relative font-mono text-[10px] uppercase tracking-[0.18em] text-zinc-500">0{index + 1}</div>
+            <div className="relative mt-2 text-sm font-black text-white">{item}</div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (visual === "gray") {
+    const labels = ["00", "01", "11", "10"];
+    return (
+      <div className={cn("grid h-full place-items-center gap-3 p-3 font-mono", large && "p-8")}>
+        <div className="grid grid-cols-4 gap-2">
+          {labels.map((label, index) => (
+            <div key={label} className="rounded-md border border-cyan-200/20 bg-cyan-200/[0.07] px-3 py-2 text-center text-sm font-black text-cyan-50">
+              {label}
+              <div className="text-[10px] text-zinc-500">pos {index + 1}</div>
+            </div>
+          ))}
+        </div>
+        <div className="text-xs uppercase tracking-[0.22em] text-zinc-500">ordine gray</div>
+      </div>
+    );
+  }
+
+  if (visual === "formula") {
+    return (
+      <div className={cn("grid h-full place-items-center p-3", large && "p-8")}>
+        <div className="grid gap-3 text-center font-mono">
+          {["varia", "sparisce", "resta"].map((item, index) => (
+            <div key={item} className={cn("rounded-lg border px-5 py-3 text-sm font-black", index === 1 ? "border-red-300/20 bg-red-300/[0.06] text-red-100 line-through" : "border-emerald-200/20 bg-emerald-200/[0.07] text-emerald-50")}>
+              {item}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (visual === "order") {
+    const values = [1, 3, 4, 5, 6, 7, 8, 10, 12, 14];
+    return (
+      <div className={cn("flex h-full flex-wrap content-center justify-center gap-2 p-3", large && "gap-3 p-8")}>
+        {values.map((value) => (
+          <div key={value} className="rounded-md border border-cyan-200/20 bg-cyan-200/[0.07] px-3 py-2 font-mono text-sm font-black text-cyan-50">
+            m{value}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (visual === "resistor") {
+    return (
+      <div className={cn("relative h-full min-h-[170px]", large && "min-h-[380px]")}>
+        <div className="absolute left-8 right-8 top-1/2 h-1 -translate-y-1/2 bg-zinc-500" />
+        <div className="absolute left-1/2 top-1/2 h-16 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full border border-amber-200/30 bg-amber-300/30" />
+        <div className="absolute left-1/2 top-1/2 h-2 w-28 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-black via-red-500 to-black" />
+        <div className="absolute bottom-5 left-0 right-0 text-center font-mono text-xs uppercase tracking-[0.22em] text-zinc-500">protezione led</div>
+      </div>
+    );
+  }
+
+  if (visual === "unlock") {
+    return (
+      <div className={cn("grid h-full place-items-center p-3", large && "p-8")}>
+        <div className="relative h-28 w-28">
+          <div className="absolute inset-0 rounded-full border border-emerald-200/20 bg-emerald-200/[0.06]" />
+          <div className="absolute left-1/2 top-8 h-12 w-16 -translate-x-1/2 rounded-t-full border-4 border-emerald-100/70 border-b-0" />
+          <div className="absolute bottom-5 left-1/2 h-12 w-20 -translate-x-1/2 rounded-lg bg-emerald-100/80" />
+        </div>
+      </div>
+    );
+  }
+
+  if (visual === "route") {
+    return (
+      <div className={cn("grid h-full grid-cols-4 content-center gap-2 p-3", large && "gap-4 p-8")}>
+        {Array.from({ length: 8 }, (_, index) => (
+          <div key={index} className="relative rounded-lg border border-white/10 bg-white/[0.05] p-3 text-center font-mono text-sm font-black text-white">
+            {index + 1}
+            {index < 7 && <span className="absolute left-full top-1/2 h-px w-4 bg-white/25" />}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("relative grid h-full min-h-[170px] place-items-center overflow-hidden", large && "min-h-[380px]")}>
+      <div className="absolute inset-6 rounded-full border border-violet-200/15" />
+      <div className="absolute inset-14 rounded-full border border-fuchsia-200/15" />
+      <div className="text-center">
+        <div className="font-mono text-xs uppercase tracking-[0.3em] text-zinc-500">chiave</div>
+        <div className="mt-2 text-5xl font-black tracking-[0.18em] text-white">103</div>
+      </div>
+    </div>
+  );
+}
+
 function EvidenceVisual({
   type,
   unlocked,
@@ -2602,6 +2989,52 @@ function EvidenceVisual({
             Non devi indovinare: parti solo dalle righe con uscita attiva.
           </p>
         )}
+      </div>
+    );
+  }
+
+  if (type === "signal-proof") {
+    return (
+      <div className={cn("relative h-full min-h-[132px] w-full overflow-hidden bg-zinc-950 p-3 font-mono", large && "min-h-[52vh] p-6")}>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:36px_100%]" />
+        <div className="relative flex h-full flex-col justify-center">
+          <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+            <span>oscillogramma Y</span>
+            <span>16 impulsi</span>
+          </div>
+          <svg viewBox="0 0 640 180" className="h-full min-h-[90px] w-full">
+            <polyline
+              fill="none"
+              stroke="rgba(255,255,255,0.18)"
+              strokeWidth="2"
+              points="0,138 640,138"
+            />
+            <polyline
+              fill="none"
+              stroke="#a7f3d0"
+              strokeWidth={large ? 7 : 5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              points={Array.from({ length: 16 }, (_, index) => {
+                const x = index * 40;
+                const y = truth(index) ? 48 : 138;
+                return `${x},${y} ${x + 34},${y}`;
+              }).join(" ")}
+            />
+            {Array.from({ length: 16 }, (_, index) => (
+              <g key={index}>
+                <circle cx={index * 40 + 17} cy={truth(index) ? 48 : 138} r={truth(index) ? 5 : 3} fill={truth(index) ? "#ecfeff" : "#52525b"} />
+                {large && <text x={index * 40 + 8} y="170" fill="#71717a" fontSize="12">m{index}</text>}
+              </g>
+            ))}
+          </svg>
+          {large && (
+            <p className="mt-5 text-sm leading-6 text-zinc-400">
+              Questo non sostituisce la tabella del terminale: serve come traccia visiva
+              per riconoscere gli impulsi in cui Y vale 1.
+            </p>
+          )}
+        </div>
       </div>
     );
   }
@@ -2709,10 +3142,10 @@ function ArchivePanel({
 }) {
   const documents = [
     {
-      title: "Registro della verita'",
-      description: "Prova iniziale: individua le righe in cui l'uscita vale 1.",
+      title: "Oscillogramma dell'uscita",
+      description: "Prova iniziale: mostra dove il segnale Y sale, senza duplicare la tabella del terminale.",
       tag: "prova 01",
-      src: "truth-proof",
+      src: "signal-proof",
       unlocked: true,
     },
     {
